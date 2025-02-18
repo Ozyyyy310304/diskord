@@ -1,2 +1,2 @@
-discord.py
+discord-selfbot-v14
 asyncio
