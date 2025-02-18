@@ -1,8 +1,9 @@
 import discord
+from discord.ext import commands
 import asyncio
 import random
 
-# Masukkan token melalui terminal
+# Masukkan token Discord
 TOKEN = input("Masukkan token Discord: ")
 
 # List kata-kata gaul
@@ -18,46 +19,38 @@ kata_gaul = [
     "ciyus miapah", "ngabers detected", "aneh bet dah", "bentar gua lagi makan", "ngopi dulu bos", "wah parah ini sih", 
     "udah feeling gua bener", "sumpah gua gak expect", "meledak cuy", "mantep bet dah", "jangan gitu lah", "bakar bakar bakar",
     "dah lah gua capek", "malah bikin kesel", "bukan level kita ini", "gas poll", "tinggal gaskeun aja", "lu pasti bisa bro"
-] + ["hi"] * 50
+] + ["hi"] * 6000
 
-intents = discord.Intents.default()
-intents.message_content = True  # Biarkan bot membaca pesan
-client = discord.Client(intents=intents)
-
-aktif = False  # Status loop
+# Setup bot
+client = commands.Bot(command_prefix="!", self_bot=True)
+aktif = False
 channel_aktif = None
 
 @client.event
 async def on_ready():
     print(f'Login sebagai {client.user}')
 
-@client.event
-async def on_message(message):
+@client.command()
+async def start(ctx):
     global aktif, channel_aktif
-    if message.author.id != client.user.id:
+    if aktif:
         return
-    
-    if message.content.lower() == "!start":
-        if aktif:
-            return
-        
-        aktif = True
-        channel_aktif = message.channel  # Simpan channel tempat command dieksekusi
-        
-        kata_terkirim = 0
-        while aktif and kata_terkirim < 200:
-            random_text = random.choice(kata_gaul)
-            await channel_aktif.send(random_text)
-            kata_terkirim += 1
-            await asyncio.sleep(12)  # Kirim setiap 12 detik
-        
-        aktif = False
-    
-    elif message.content.lower() == "!stop":
-        if not aktif:
-            return
-        
-        aktif = False
-        channel_aktif = None
+
+    aktif = True
+    channel_aktif = ctx.channel
+
+    kata_terkirim = 0
+    while aktif and kata_terkirim < 200:
+        random_text = random.choice(kata_gaul)
+        await channel_aktif.send(random_text)
+        kata_terkirim += 1
+        await asyncio.sleep(13)
+
+    aktif = False
+
+@client.command()
+async def stop(ctx):
+    global aktif
+    aktif = False
 
 client.run(TOKEN, bot=False)
